@@ -1,5 +1,5 @@
 # Dockerfile
-FROM runpod/pytorch:2.3.0-py3.10-cuda12.1.1-devel
+FROM runpod/pytorch:2.3.1-py3.11-cuda12.1.1-devel
 
 # Establece el directorio de trabajo
 WORKDIR /app
