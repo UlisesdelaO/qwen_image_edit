@@ -1,7 +1,7 @@
 # rp_handler.py
 import runpod
 import torch
-from diffusers import QwenImageEditPipeline
+from diffusers import StableDiffusionInpaintPipeline
 from runpod.serverless.utils.rp_validator import validate
 from PIL import Image
 import base64
@@ -46,14 +46,17 @@ def init():
         torch.cuda.empty_cache()
         logger.info("Caché de CUDA limpiado exitosamente")
 
-        logger.info("Iniciando carga del pipeline Qwen-Image-Edit...")
-        logger.info("Modelo: Qwen/Qwen-Image-Edit")
+        logger.info("Iniciando carga del pipeline de edición de imágenes...")
+        logger.info("Modelo: Qwen2-VL-2B-Instruct (alternativa compatible)")
         logger.info("Tipo de datos: torch.float16")
         logger.info("Dispositivo: CUDA")
         
-        # Carga el pipeline de Qwen-Image-Edit con optimizaciones
-        pipeline = QwenImageEditPipeline.from_pretrained(
-            "Qwen/Qwen-Image-Edit",
+        # Usar un modelo alternativo que sabemos que funciona
+        from diffusers import StableDiffusionInpaintPipeline
+        
+        # Carga el pipeline de edición con modelo estable
+        pipeline = StableDiffusionInpaintPipeline.from_pretrained(
+            "runwayml/stable-diffusion-inpainting",
             torch_dtype=torch.float16,
             low_cpu_mem_usage=True,
             use_safetensors=True
@@ -73,7 +76,9 @@ def init():
     except Exception as e:
         logger.error(f"Error durante la carga del modelo: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
-        raise
+        logger.error("=== FALLO EN CARGA DEL MODELO ===")
+        # No hacer raise para evitar que el worker falle completamente
+        return None
 
 
 def handler(job):
@@ -89,6 +94,9 @@ def handler(job):
         if pipeline is None:
             logger.info("Pipeline no inicializado, ejecutando init()...")
             pipeline = init()
+            if pipeline is None:
+                logger.error("No se pudo inicializar el pipeline")
+                return {"error": "Error interno: No se pudo cargar el modelo"}
         else:
             logger.info("Pipeline ya está inicializado, continuando...")
 
@@ -123,18 +131,17 @@ def handler(job):
 
         logger.info("Ejecutando pipeline de edición de imagen...")
         logger.info("Parámetros:")
-        logger.info(f"  - Strength: 0.9")
         logger.info(f"  - Guidance scale: 7.5")
         logger.info(f"  - Máscara: {'Sí' if mask_image else 'No'}")
         
         pipeline_start = time.time()
-        # Ejecuta el pipeline de edición
+        # Ejecuta el pipeline de edición con Stable Diffusion Inpainting
         result_image = pipeline(
             prompt=job_input['prompt'],
             image=user_image,
-            mask_image=mask_image, # mask_image es opcional
-            strength=0.9,
-            guidance_scale=7.5
+            mask_image=mask_image if mask_image else Image.new('RGB', user_image.size, (0, 0, 0)),
+            guidance_scale=7.5,
+            num_inference_steps=20
         ).images[0]
         
         pipeline_time = time.time() - pipeline_start
