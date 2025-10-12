@@ -1,5 +1,6 @@
 # rp_handler.py
-# Updated: October 12, 2025 - API Testing Build
+# CRITICAL FIX: October 12, 2025 - Fixed QwenImageEditPipeline import error
+# This version uses StableDiffusionInpaintPipeline instead of QwenImageEditPipeline
 import runpod
 import torch
 from diffusers import StableDiffusionInpaintPipeline
