@@ -20,12 +20,20 @@ WORKDIR /app
 # Copia tu código de handler al contenedor
 COPY ./rp_handler.py /app/rp_handler.py
 
-# Instala las dependencias de Python
-# Se instala PyTorch primero, especificando la versión compatible con CUDA 12.1
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 && \
-    pip install --no-cache-dir runpod diffusers transformers accelerate sentencepiece Pillow xformers && \
-    pip cache purge
+# Instala las dependencias de Python paso a paso para evitar errores
+RUN pip install --no-cache-dir --upgrade pip
+
+# Instala PyTorch con CUDA 12.1
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Instala dependencias básicas
+RUN pip install --no-cache-dir runpod diffusers transformers accelerate sentencepiece Pillow
+
+# Intenta instalar xformers (opcional, puede fallar)
+RUN pip install --no-cache-dir xformers || echo "xformers installation failed, continuing without it"
+
+# Limpia cache
+RUN pip cache purge
 
 # Comando que se ejecuta al iniciar el contenedor
 CMD ["python3", "-u", "/app/rp_handler.py"]
