@@ -1,4 +1,5 @@
 # rp_handler.py
+# Updated: October 12, 2025 - API Testing Build
 import runpod
 import torch
 from diffusers import StableDiffusionInpaintPipeline
