@@ -1,4 +1,5 @@
 # Usa la imagen oficial de NVIDIA con CUDA 12.1.1 y herramientas de desarrollo
+# Updated: October 12, 2025 - API Testing Build
 FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
 
 # Evita que la instalación pida interacción del usuario
