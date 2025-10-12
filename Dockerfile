@@ -5,7 +5,7 @@ FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Configurar variables de entorno para optimización
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=2
 ENV CUDA_VISIBLE_DEVICES=0
 
 # Instala Python 3, pip y git
