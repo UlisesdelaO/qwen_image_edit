@@ -23,7 +23,7 @@ COPY ./rp_handler.py /app/rp_handler.py
 # Se instala PyTorch primero, especificando la versión compatible con CUDA 12.1
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 && \
-    pip install --no-cache-dir runpod diffusers transformers accelerate sentencepiece Pillow && \
+    pip install --no-cache-dir runpod diffusers transformers accelerate sentencepiece Pillow xformers && \
     pip cache purge
 
 # Comando que se ejecuta al iniciar el contenedor

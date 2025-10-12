@@ -51,12 +51,17 @@ def init():
         logger.info("Tipo de datos: torch.float16")
         logger.info("Dispositivo: CUDA")
         
-        # Carga el pipeline de Qwen-Image-Edit
+        # Carga el pipeline de Qwen-Image-Edit con optimizaciones
         pipeline = QwenImageEditPipeline.from_pretrained(
             "Qwen/Qwen-Image-Edit",
             torch_dtype=torch.float16,
-            low_cpu_mem_usage=False
+            low_cpu_mem_usage=True,
+            use_safetensors=True
         ).to("cuda")
+        
+        # Habilitar optimizaciones de memoria
+        pipeline.enable_memory_efficient_attention()
+        pipeline.enable_model_cpu_offload()
 
         load_time = time.time() - start_time
         logger.info(f"Pipeline cargado exitosamente en {load_time:.2f} segundos")
