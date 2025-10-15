@@ -1,6 +1,6 @@
 # Qwen Image Edit - RunPod Serverless
 
-Este proyecto implementa un handler de RunPod Serverless para edición de imágenes usando el modelo Qwen-Image-Edit.
+Este proyecto implementa un handler de RunPod Serverless para edición de imágenes usando el modelo oficial **Qwen-Image-Edit** (20B MMDiT) de QwenLM.
 
 ## 🚀 Despliegue Automático con GitHub Actions
 
@@ -49,12 +49,14 @@ docker push tuusuario/qwen-image-edit:latest
 
 ## 📋 Características
 
-- ✅ Logging completo de cada paso
-- ✅ Manejo de errores con traceback
-- ✅ Medición de tiempos de ejecución
-- ✅ Soporte para imágenes base64
-- ✅ Máscaras opcionales
-- ✅ Optimizado para CUDA
+- ✅ **Modelo Oficial**: Qwen-Image-Edit (20B MMDiT) de QwenLM
+- ✅ **Edición Precisa**: Soporte para edición de imágenes con preservación de identidad
+- ✅ **Renderizado de Texto**: Capacidades avanzadas de renderizado de texto complejo
+- ✅ **Multi-imagen**: Soporte para edición de múltiples imágenes (1-3)
+- ✅ **ControlNet**: Soporte nativo para mapas de profundidad, bordes y keypoints
+- ✅ **Logging Completo**: Seguimiento detallado de cada paso
+- ✅ **Manejo de Errores**: Gestión robusta con traceback completo
+- ✅ **Optimizado para CUDA**: Optimizaciones de memoria y rendimiento
 
 ## 🔧 Uso
 

@@ -1,5 +1,5 @@
-# Qwen-Image-Edit RunPod Serverless Handler
-# Updated: October 12, 2025 - Using official QwenImageEditPipeline with enhanced logging
+# Dockerfile para pruebas locales de Qwen-Image-Edit
+# Optimizado para desarrollo y testing
 FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
 
 # Evita que la instalación pida interacción del usuario
@@ -10,12 +10,10 @@ ENV PYTHONUNBUFFERED=1
 ENV CUDA_VISIBLE_DEVICES=0
 ENV HF_HOME=/app/cache
 ENV TRANSFORMERS_CACHE=/app/cache
-ENV TORCH_CUDA_ARCH_LIST="6.0;6.1;7.0;7.5;8.0;8.6"
-ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 
 # Instala Python 3, pip y git
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip git && \
+    apt-get install -y python3 python3-pip git wget curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Establece el directorio de trabajo
@@ -23,9 +21,6 @@ WORKDIR /app
 
 # Crear directorio para cache
 RUN mkdir -p /app/cache
-
-# Copia tu código de handler al contenedor
-COPY ./rp_handler.py /app/rp_handler.py
 
 # Instala las dependencias de Python paso a paso para evitar errores
 RUN pip install --no-cache-dir --upgrade pip
@@ -40,31 +35,29 @@ RUN pip install --no-cache-dir \
     accelerate \
     sentencepiece \
     Pillow \
-    runpod \
-    safetensors \
-    psutil
+    jupyter \
+    matplotlib \
+    numpy \
+    safetensors
 
 # Intenta instalar xformers para optimización (opcional)
 RUN pip install --no-cache-dir xformers || echo "xformers installation failed, continuing without it"
 
-# Limpia cache
-RUN pip cache purge
+# Copia todos los archivos del proyecto
+COPY . /app/
 
-# Crear directorio para logs
-RUN mkdir -p /app/logs
-
-# Crear script de inicio con logging
+# Crear script de inicio para desarrollo
 RUN echo '#!/bin/bash\n\
-echo "=== QWEN-IMAGE-EDIT RUNPOD STARTUP ==="\n\
-echo "Timestamp: $(date)"\n\
-echo "CUDA Version: $(nvcc --version | grep release)"\n\
-echo "Python Version: $(python3 --version)"\n\
-echo "PyTorch Version: $(python3 -c "import torch; print(torch.__version__)")"\n\
-echo "GPU Info: $(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader,nounits)"\n\
-echo "Starting handler..."\n\
-python3 -u /app/rp_handler.py' > /app/start.sh
+echo "=== QWEN-IMAGE-EDIT LOCAL TESTING ==="\n\
+echo "GPU disponible: $(nvidia-smi --query-gpu=name --format=csv,noheader,nounits)"\n\
+echo "VRAM disponible: $(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits) MB"\n\
+echo "Iniciando Jupyter Lab..."\n\
+jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token="" --NotebookApp.password=""' > /app/start_dev.sh
 
-RUN chmod +x /app/start.sh
+RUN chmod +x /app/start_dev.sh
 
-# Comando que se ejecuta al iniciar el contenedor
-CMD ["/app/start.sh"]
+# Exponer puerto para Jupyter
+EXPOSE 8888
+
+# Comando por defecto para desarrollo
+CMD ["/app/start_dev.sh"]
